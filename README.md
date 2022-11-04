@@ -2,6 +2,8 @@
 
 The example API specifies the minimal requirements for developing a new API that will be used for user provisioning from HelloID.
 
+The swagger interface can be found on: https://app.swaggerhub.com/apis-docs/ConnectorTeam/Basic-EXAMPLE-Target-API/V1
+
 ## About
 
 First and foremost, this API is merely an example. Your API (or the API you need to build) probably differs in more than one way. For example: Your actions might have different names, methods or inputs. And that's okay. We understand that no two APIs are alike.
