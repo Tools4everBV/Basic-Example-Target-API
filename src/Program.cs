@@ -35,16 +35,12 @@ builder.Services.AddEntityFrameworkSqlite().AddDbContext<ApplicationDbContext>()
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(config =>
 {
-    // Make sure the swaggerUI is available in development mode.
-    app.UseSwagger();
-    app.UseSwaggerUI(config =>
-    {
-        // Instead of the default swagger JSON, we need the yaml file for viewing on the web.
-        config.SwaggerEndpoint("/swagger/v1/swagger.yaml", "Basic-EXAMPLE-Target-API");
-    });
-}
+    // Instead of the default swagger JSON, we need the yaml file for viewing on the web.
+    config.SwaggerEndpoint("/swagger/v1/swagger.yaml", "Basic-Example-Target-API");
+});
 
 app.UseHttpsRedirection();
 
