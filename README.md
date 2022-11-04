@@ -59,14 +59,14 @@ Or, from your favorite terminal:
 
 1. Clone the repo. `gh repo clone Tools4everBV/Basic-Example-Target-API`.
 2. Go to the `./src` folder.
-3. Type: `dotnet build` or, to directly run the project: `dotnet run --urls http://localhost:5001`
+3. Type: `dotnet build` or, to directly run the project: `dotnet run --urls https://localhost:5001`
 
 > :exclamation: Make sure to change the URL and portnumber according to your environment.
 
 ### MacOS
 
 When you are using MacOS, you might run into problems regarding keyChain.
-To bypass this type: `dotnet run --urls http://localhost:5001 -p:UseAppHost=false`
+To bypass this type: `dotnet run --urls https://localhost:5001 -p:UseAppHost=false`
 
 see also: https://github.com/dotnet/sdk/issues/22544
 
