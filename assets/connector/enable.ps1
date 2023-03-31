@@ -19,9 +19,6 @@ switch ($($config.IsDebug)) {
     $false { $VerbosePreference = 'SilentlyContinue' }
 }
 
-#region functions
-#endregion
-
 try {
     # Verify if a user account exists in the target system
     # Make sure to fail the action if the account does not exist in the target system!
