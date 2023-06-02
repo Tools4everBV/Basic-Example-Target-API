@@ -18,6 +18,7 @@ This repo contains the following:
 
 - Source code for the 'Basic-EXAMPLE-Target-API' in the `src` folder.
 - Postman collection with all API calls and examples in the `assets` folder.
+- HelloID connector in the `assets/connector` folder
 
 ## Table of contents
 
