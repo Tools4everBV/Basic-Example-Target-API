@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Target Application User Management</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/site.css" asp-append-version="true">
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        table {
+            margin-top: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .new-user-row input {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Demo Target Application User Management</h2>
+            <div id="authSection">
+                <input type="text" id="clientId" placeholder="ClientId">
+                <input type="text" id="clientSecret" placeholder="ClientSecret">
+                <button class="btn btn-primary" onclick="login()">Login</button>
+            </div>
+            <div id="authMessage" class="alert" role="alert" style="display:none; margin-top:10px;"></div>
+        </div>
+
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr><th>ID</th><th>Employee ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Active</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="userTableBody"></tbody>
+            <tfoot>
+                <tr class="new-user-row">
+                    <td></td>
+                    <td><input type="text" id="newEmployeeId" placeholder="Employee ID" required></td>
+                    <td><input type="text" id="newFirstName" placeholder="First Name" required></td>
+                    <td><input type="text" id="newLastName" placeholder="Last Name" required></td>
+                    <td><input type="email" id="newEmail" placeholder="Email" required></td>
+                    <td><select id="newActive"><option value="true">Yes</option><option value="false">No</option></select></td>
+                    <td><button class="btn btn-success" onclick="addUser()">Add</button></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script>
+        async function login() {
+            const clientId = document.getElementById('clientId').value;
+            const clientSecret = document.getElementById('clientSecret').value;
+
+            const credentials = { ClientId: clientId, ClientSecret: clientSecret };
+
+            const authMessage = document.getElementById('authMessage');
+            authMessage.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/oauth/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(credentials)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    sessionStorage.setItem('authToken', data.token);
+
+                    authMessage.style.display = 'block';
+                    authMessage.className = 'alert alert-success';
+                    authMessage.textContent = `Login successful! Token expires at: ${new Date(data.expiresAt).toLocaleTimeString()}`;
+
+                    fetchUsers();
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    authMessage.style.display = 'block';
+                    authMessage.className = 'alert alert-danger';
+                    authMessage.textContent = errorData.message || 'Login failed. Please check your credentials.';
+                }
+            } catch (error) {
+                authMessage.style.display = 'block';
+                authMessage.className = 'alert alert-danger';
+                authMessage.textContent = 'An error occurred. Please try again.';
+                console.error('Login failed:', error);
+            }
+        }
+
+        async function fetchUsers() {
+            try {
+                const response = await fetch('/api/users', {
+                    headers: { 'Authorization': `Bearer ${sessionStorage.getItem('authToken')}` }
+                });
+                const data = await response.json();
+                displayUsers(data);
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        }
+
+        function displayUsers(users) {
+            const userTableBody = document.getElementById('userTableBody');
+            userTableBody.innerHTML = '';
+            users.forEach(user => {
+                const row = `<tr>
+                            <td>${user.id}</td>
+                            <td>${user.employeeId}</td>
+                            <td>${user.firstName}</td>
+                            <td>${user.lastName}</td>
+                            <td>${user.email}</td>
+                            <td>${user.active ? 'Yes' : 'No'}</td>
+                            <td><button class="btn btn-danger" onclick="deleteUser('${user.id}')">Delete</button></td>
+                        </tr>`;
+                userTableBody.innerHTML += row;
+            });
+        }
+
+        async function addUser() {
+            const employeeId = document.getElementById('newEmployeeId').value;
+            const firstName = document.getElementById('newFirstName').value;
+            const lastName = document.getElementById('newLastName').value;
+            const email = document.getElementById('newEmail').value;
+            const active = document.getElementById('newActive').value === 'true';
+
+            try {
+                await fetch('/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({ employeeId, firstName, lastName, email, active })
+                });
+                fetchUsers();
+            } catch (error) {
+                console.error('Error adding user:', error);
+            }
+        }
+
+        async function deleteUser(id) {
+            try {
+                await fetch(`/api/users/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${sessionStorage.getItem('authToken')}` }
+                });
+                fetchUsers();
+            } catch (error) {
+                console.error('Error deleting user:', error);
+            }
+        }
+    </script>
+    <script src="js/site.js" asp-append-version="true"></script>
+</body>
+</html>
