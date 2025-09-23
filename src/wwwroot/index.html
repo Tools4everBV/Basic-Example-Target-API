@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example-Target-Demo</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #ff6a00, #ee1f6d, #00bfff);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #f5f7fa;
+        }
+
+        .card-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .card {
+            text-align: center;
+            width: 250px;
+            padding: 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            transition: transform 0.2s;
+            background: white;
+        }
+
+            .card:hover {
+                transform: scale(1.05);
+            }
+
+        .card-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Example Target Demo Application</h1>
+
+    <div class="card-container">
+        <div class="card bg-light">
+            <div class="card-title">User Management</div>
+            <p>Manage users, add new accounts, or delete existing ones.</p>
+            <a href="management.html" class="btn btn-primary" target="_blank">Go to User Management</a>
+        </div>
+        <div class="card bg-light">
+            <div class="card-title">API Documentation</div>
+            <p>Access the Swagger interface for API documentation and testing.</p>
+            <a href="/swagger/index.html" class="btn btn-secondary" target="_blank">Go to Swagger UI</a>
+        </div>
+    </div>
+</body>
+</html>

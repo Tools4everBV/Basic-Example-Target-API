@@ -1,59 +1,27 @@
 {
 	"info": {
-		"_postman_id": "79a99b3d-e22e-4ed2-8153-428eb7289a60",
-		"name": "Basic-Example-Target-API",
-		"description": "Example Target API that specifies the minimal requirements for developing a new API that will interact with HelloID provisioning.",
+		"_postman_id": "107ccb99-59a2-4f7e-b9ae-05ccce6cc88e",
+		"name": "Demo Target Application API",
+		"description": "This example API specifies the minimal requirements for developing a new API that will be used for user provisioning from HelloID.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "5314392"
 	},
 	"item": [
 		{
-			"name": "1. Get roles",
+			"name": "Retrieve an access token using a clientId and clientSecret",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"var jsonData = JSON.parse(responseBody);\r",
-							"pm.collectionVariables.set(\"roleId\", jsonData[0].id);"
+							"pm.test(\"Check access_token\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.collectionVariables.set(\"bearerToken\", jsonData.access_token);\r",
+							"});"
 						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/api/Roles",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"api",
-						"Roles"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "2. Add user",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"var jsonData = JSON.parse(responseBody);\r",
-							"pm.collectionVariables.set(\"userId\", jsonData.id);\r",
-							"pm.collectionVariables.set(\"employeeId\", jsonData.employeeId);"
-						],
-						"type": "text/javascript"
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
 					}
 				}
 			],
@@ -71,28 +39,191 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"active\": false,\n  \"email\": \"J.Doe@enyoi\",\n  \"employeeId\": \"100000\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}",
+					"raw": "{\n  \"client_id\": \"339ddde0-7219-4895-ab65-65d5dba91fff\",\n  \"client_secret\": \"87a3354033418b90fc00ad9d06cb2cf36baf0276181efae9ce8a1e780cc024a3\"\n}",
 					"options": {
 						"raw": {
+							"headerFamily": "json",
 							"language": "json"
 						}
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/api/Users",
+					"raw": "{{baseUrl}}/api/oauth/token",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"Users"
+						"oauth",
+						"token"
 					]
-				}
+				},
+				"description": "Example request:\r\n\r\n    POST /oauth/token\r\n    {\r\n        \"client_id\": \"example-client-id\",\r\n        \"client_secret\": \"example-client-secret\"\r\n    }\r\n\r\nExample success response:\r\n\r\n    {\r\n        \"access_token\": \"\",\r\n        \"token_type\": \"Bearer\",\r\n        \"expires_in\": 1800\r\n    }\r\n\r\nExample error response:\r\n\r\n    {\r\n        \"error\": \"invalid_client\",\r\n        \"error_description\": \"Client authentication failed\"\r\n    }"
 			},
-			"response": []
+			"response": [
+				{
+					"name": "A valid access token was issued.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_id\": \"339ddde0-7219-4895-ab65-65d5dba91fff\",\n  \"client_secret\": \"87a3354033418b90fc00ad9d06cb2cf36baf0276181efae9ce8a1e780cc024a3\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/oauth/token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"access_token\": \"string\",\n  \"token_type\": \"string\",\n  \"expires_in\": 9142\n}"
+				},
+				{
+					"name": "The request was malformed or missing required fields.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_id\": \"339ddde0-7219-4895-ab65-65d5dba91fff\",\n  \"client_secret\": \"87a3354033418b90fc00ad9d06cb2cf36baf0276181efae9ce8a1e780cc024a3\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/oauth/token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"error\": \"string\",\n  \"error_description\": \"string\"\n}"
+				},
+				{
+					"name": "Authentication failed or was not provided.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_id\": \"339ddde0-7219-4895-ab65-65d5dba91fff\",\n  \"client_secret\": \"87a3354033418b90fc00ad9d06cb2cf36baf0276181efae9ce8a1e780cc024a3\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/oauth/token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"error\": \"string\",\n  \"error_description\": \"string\"\n}"
+				}
+			]
 		},
 		{
-			"name": "3. Get user (by EmployeeId)",
+			"name": "Retrieve a user (by employeeId)",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -102,50 +233,766 @@
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/api/Users/ByEmployeeId/{{employeeId}}",
+					"raw": "{{baseUrl}}/api/users/employeeid/:employeeid",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"Users",
-						"ByEmployeeId",
-						"{{employeeId}}"
+						"users",
+						"employeeid",
+						":employeeid"
+					],
+					"variable": [
+						{
+							"key": "employeeid",
+							"value": "002",
+							"description": "(Required) "
+						}
 					]
-				}
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            Before we add a user account to the target application, we must validate whether that user already exists.\r\n            Since the internal database ID is not known at the time of the initial create event,\r\n            we use the `employeeId` (which is unique and provided by HelloID) for validation.\r\n            \r\n\r\n            Once the user account is created and correlated, subsequent events will use the internal database ID for lookups."
 			},
-			"response": []
+			"response": [
+				{
+					"name": "The user was found and returned.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/employeeid/:employeeid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"employeeid",
+								":employeeid"
+							],
+							"variable": [
+								{
+									"key": "employeeid"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"Active\": false,\n  \"Email\": \"J.Doe@enyoi\",\n  \"EmployeeId\": \"100000\",\n  \"FirstName\": \"John\",\n  \"LastName\": \"Doe\",\n  \"Id\": 3171\n}"
+				},
+				{
+					"name": "Authentication failed or was not provided.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/employeeid/:employeeid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"employeeid",
+								":employeeid"
+							],
+							"variable": [
+								{
+									"key": "employeeid"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				},
+				{
+					"name": "No user with the specified employee ID was found.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/employeeid/:employeeid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"employeeid",
+								":employeeid"
+							],
+							"variable": [
+								{
+									"key": "employeeid"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
 		},
 		{
-			"name": "4. Patch user",
+			"name": "Get user (by Id)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/users/:id",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "2",
+							"description": "(Required) "
+						}
+					]
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            Before we update a particular user account, we need to validate if that user account still exists.\r\n            \r\n\r\n            Validating if the user account exists is an integral part in all our lifecycle events because the user \r\n            account might be <em>unintentionally</em> delete, in which case the lifecycle event will fail.\r\n            For example: when we want to enable the user account on the day the contract takes effect."
+			},
+			"response": [
+				{
+					"name": "The user was found and returned.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"Active\": false,\n  \"Email\": \"J.Doe@enyoi\",\n  \"EmployeeId\": \"100000\",\n  \"FirstName\": \"John\",\n  \"LastName\": \"Doe\",\n  \"Id\": 3171\n}"
+				},
+				{
+					"name": "Authentication failed or was not provided.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				},
+				{
+					"name": "No user with the specified  was found.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Partially update a user (by Id)",
 			"request": {
 				"method": "PATCH",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json-patch+json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "[\r\n    {\r\n        \"op\": \"replace\",\r\n        \"path\": \"firstName\",\r\n        \"value\": \"John\"\r\n    }\r\n]",
+					"raw": "[\n  {\n    \"op\": \"replace\",\n    \"path\": \"active\",\n    \"value\": true\n  }\n]",
 					"options": {
 						"raw": {
+							"headerFamily": "json",
 							"language": "json"
 						}
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/api/Users/{{userId}}",
+					"raw": "{{baseUrl}}/api/users/:id",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"Users",
-						"{{userId}}"
+						"users",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "2",
+							"description": "(Required) The internal database ID of the user to update."
+						}
 					]
-				}
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            This endpoint supports partial updates to a user account using the HTTP PATCH method.\r\n            Only the specified fields in the patch document will be updated.\r\n            \r\n<em>This implementation uses <a href=\"https://jsonpatch.com/\">JSON Patch</a>,\r\n            which allows operations like `replace`, `add`, and `remove`.\r\n            Consider whether JSON Patch is the best solution for your application before using it.</em>\r\n\r\n            Example request:\r\n            \r\n                PATCH /user/{id}\r\n                [  \r\n                    {\r\n                        \"op\": \"replace\",\r\n                        \"path\": \"active\",\r\n                        \"value\": \"false\"\r\n                    }\r\n                ]"
 			},
-			"response": []
+			"response": [
+				{
+					"name": "The user was successfully updated and returned.",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"op\": \"replace\",\n    \"path\": \"active\",\n    \"value\": false\n  }\n]",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"Active\": false,\n  \"Email\": \"J.Doe@enyoi\",\n  \"EmployeeId\": \"100000\",\n  \"FirstName\": \"John\",\n  \"LastName\": \"Doe\",\n  \"Id\": 3171\n}"
+				},
+				{
+					"name": "The patch document was invalid.",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"op\": \"replace\",\n    \"path\": \"active\",\n    \"value\": false\n  }\n]",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				},
+				{
+					"name": "Authentication failed or was not provided.",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"op\": \"replace\",\n    \"path\": \"active\",\n    \"value\": false\n  }\n]",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				},
+				{
+					"name": "No user with the specified ID was found.",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"op\": \"replace\",\n    \"path\": \"active\",\n    \"value\": false\n  }\n]",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
 		},
 		{
-			"name": "5. Get user (by id)",
+			"name": "Delete user (by Id)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/users/:id",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "02",
+							"description": "(Required) "
+						}
+					]
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            This action does not require a response. A [204 No Content] is sufficient."
+			},
+			"response": [
+				{
+					"name": "The user was successfully removed.",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Authentication required or failed.",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				},
+				{
+					"name": "No user with the specified Id was found.",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Retrieve all users",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -155,57 +1002,295 @@
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/api/Users/{{userId}}",
+					"raw": "{{baseUrl}}/api/users",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"Users",
-						"{{userId}}"
+						"users"
 					]
-				}
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            This endpoint returns all users in the system.  \r\n            It is primarily used to support the import entitlement feature, enable reconciliation,\r\n            and ensure proper governance across connected systems."
 			},
-			"response": []
+			"response": [
+				{
+					"name": "A list of users was successfully retrieved.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"Active\": true,\n    \"Email\": \"J.Doe@enyoi\",\n    \"EmployeeId\": \"100000\",\n    \"FirstName\": \"John\",\n    \"LastName\": \"Doe\",\n    \"Id\": 4865\n  },\n  {\n    \"Active\": false,\n    \"Email\": \"J.Doe@enyoi\",\n    \"EmployeeId\": \"100000\",\n    \"FirstName\": \"John\",\n    \"LastName\": \"Doe\",\n    \"Id\": 8203\n  }\n]"
+				},
+				{
+					"name": "Authentication failed or was not provided.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
 		},
 		{
-			"name": "6. Add authorization",
+			"name": "Create a new user",
 			"request": {
 				"method": "POST",
 				"header": [
 					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
 						"key": "Accept",
 						"value": "application/json"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"roleId\": {{roleId}},\r\n    \"userId\": {{userId}}\r\n}",
+					"raw": "{\n  \"Active\": true,\n  \"Email\": \"J.Doe@enyoi\",\n  \"EmployeeId\": \"100000\",\n  \"FirstName\": \"John\",\n  \"LastName\": \"Doe\"\n}",
 					"options": {
 						"raw": {
+							"headerFamily": "json",
 							"language": "json"
 						}
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/api/Users/Authorizations/Add",
+					"raw": "{{baseUrl}}/api/users",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"Users",
-						"Authorizations",
-						"Add"
+						"users"
 					]
-				}
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            This endpoint creates a new user account in the target system.\r\n            The response must include the internal database `id` because this is the key used for correlation\r\n            and will be required for subsequent update, patch, and delete operations.\r\n            \r\n\r\n            Example request:\r\n            \r\n                POST /user\r\n                {\r\n                   \"employeeId\": \"1000000\",\r\n                   \"firstName\": \"John\",\r\n                   \"lastName\": \"Doe\",\r\n                   \"email\": \"JDoe@enyoi\",\r\n                   \"active\": false\r\n                }"
 			},
-			"response": []
+			"response": [
+				{
+					"name": "The user was successfully created.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"Active\": true,\n  \"Email\": \"J.Doe@enyoi\",\n  \"EmployeeId\": \"100000\",\n  \"FirstName\": \"John\",\n  \"LastName\": \"Doe\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"Active\": false,\n  \"Email\": \"J.Doe@enyoi\",\n  \"EmployeeId\": \"100000\",\n  \"FirstName\": \"John\",\n  \"LastName\": \"Doe\",\n  \"Id\": 3171\n}"
+				},
+				{
+					"name": "Invalid request payload.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"Active\": true,\n  \"Email\": \"J.Doe@enyoi\",\n  \"EmployeeId\": \"100000\",\n  \"FirstName\": \"John\",\n  \"LastName\": \"Doe\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				},
+				{
+					"name": "Authentication failed or was not provided.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"Active\": true,\n  \"Email\": \"J.Doe@enyoi\",\n  \"EmployeeId\": \"100000\",\n  \"FirstName\": \"John\",\n  \"LastName\": \"Doe\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
 		},
 		{
-			"name": "7. Delete authorization",
+			"name": "Get all roles",
 			"request": {
-				"method": "DELETE",
+				"method": "GET",
 				"header": [
 					{
 						"key": "Accept",
@@ -213,32 +1298,267 @@
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/api/Users/Authorizations/Delete?roleId={{roleId}}&userId={{userId}}",
+					"raw": "{{baseUrl}}/api/roles",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"Users",
-						"Authorizations",
-						"Delete"
-					],
-					"query": [
+						"roles"
+					]
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            Before we can assign a role to a user, we first need to retrieve all available roles. Then, we build out our business rules to, ultimately grant authorizations to users based on information coming from an HR source."
+			},
+			"response": [
+				{
+					"name": "A list of roles was successfully retrieved.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"roles"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
 						{
-							"key": "roleId",
-							"value": "{{roleId}}"
-						},
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"Id\": 3041,\n    \"DisplayName\": \"Admin\"\n  },\n  {\n    \"Id\": 2545,\n    \"DisplayName\": \"Admin\"\n  }\n]"
+				},
+				{
+					"name": "Authentication failed or was not provided.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"roles"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get all authorizations for a specific user",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/authorizations/user/:userId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"authorizations",
+						"user",
+						":userId"
+					],
+					"variable": [
 						{
 							"key": "userId",
-							"value": "{{userId}}"
+							"value": "02",
+							"description": "(Required) "
 						}
 					]
-				}
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            This returns all authorizations currently assigned to the given user.\r\n            \r\n</br>\r\n            Useful when validating which permissions/roles the user has at a given moment."
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Returns a list of authorizations",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations/user/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations",
+								"user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"RoleId\": 1,\n    \"UserId\": 1\n  },\n  {\n    \"RoleId\": 1,\n    \"UserId\": 1\n  }\n]"
+				},
+				{
+					"name": "Authentication required or failed.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations/user/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations",
+								"user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				},
+				{
+					"name": "If the user has no authorizations",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations/user/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations",
+								"user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
 		},
 		{
-			"name": "8. Delete user (by id)",
+			"name": "Delete authorization (by Id)",
 			"request": {
 				"method": "DELETE",
 				"header": [
@@ -248,25 +1568,517 @@
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/api/Users/{{userId}}",
+					"raw": "{{baseUrl}}/api/authorizations/:id",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
-						"Users",
-						"{{userId}}"
+						"authorizations",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "01",
+							"description": "(Required) "
+						}
 					]
-				}
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            We will use this action when an authorization is revoked from a user. This action does not require a response. A [204 No Content] is sufficient."
 			},
-			"response": []
+			"response": [
+				{
+					"name": "The authorization was successfully removed.",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Authentication required or failed.",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				},
+				{
+					"name": "No authorization with the specified Id was found.",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get all authorizations for all users",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/authorizations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"authorizations"
+					]
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            We need to retrieve information about all authorizations to support our import entitlement feature, enable reconciliation, and ultimately ensure proper governance."
+			},
+			"response": [
+				{
+					"name": "Returns the list of all authorizations",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"RoleId\": 1,\n    \"UserId\": 1\n  },\n  {\n    \"RoleId\": 1,\n    \"UserId\": 1\n  }\n]"
+				},
+				{
+					"name": "Authentication required or failed.",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Add a new authorization for a user",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"RoleId\": 1,\n  \"UserId\": 1\n}",
+					"options": {
+						"raw": {
+							"headerFamily": "json",
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/authorizations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"authorizations"
+					]
+				},
+				"description": "<h2>Implementation notes</h2>\r\n            This action is used when an authorization is granted to a user.  \r\n            If an identical authorization already exists for the given `userId` and `roleId`,  \r\n            the existing record will be returned with a `200 OK` response instead of creating a duplicate.  \r\n            \r\n\r\n\r\n            Example request:\r\n              \r\n                POST /authorization\r\n                {\r\n                   \"roleId\": 1,\r\n                   \"userId\": 1\r\n                }"
+			},
+			"response": [
+				{
+					"name": "The authorization already existed and is returned.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"RoleId\": 1,\n  \"UserId\": 1\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"RoleId\": 1,\n  \"UserId\": 1\n}"
+				},
+				{
+					"name": "The authorization was successfully created.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"RoleId\": 1,\n  \"UserId\": 1\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"RoleId\": 1,\n  \"UserId\": 1\n}"
+				},
+				{
+					"name": "Invalid request payload.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"RoleId\": 1,\n  \"UserId\": 1\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				},
+				{
+					"name": "Authentication required or failed.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer <token>",
+								"description": "Added as a part of security scheme: bearer"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"RoleId\": 1,\n  \"UserId\": 1\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/authorizations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"authorizations"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"string\",\n  \"title\": \"string\",\n  \"status\": 7873,\n  \"detail\": \"string\",\n  \"instance\": \"string\"\n}"
+				}
+			]
 		}
 	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{bearerToken}}",
+				"type": "string"
+			}
+		]
+	},
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -276,6 +2088,8 @@
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -285,19 +2099,10 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "https://localhost:7151",
-			"type": "string"
+			"value": "/"
 		},
 		{
-			"key": "userId",
-			"value": ""
-		},
-		{
-			"key": "employeeId",
-			"value": ""
-		},
-		{
-			"key": "roleId",
+			"key": "bearerToken",
 			"value": ""
 		}
 	]

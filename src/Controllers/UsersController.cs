@@ -3,13 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using EXAMPLE.API.Data;
 using EXAMPLE.API.Data.Models;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace EXAMPLE.API.Controllers
 {
+    [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/users")]
     [Consumes("application/json")]
     [Produces("application/json")]
+    [ApiExplorerSettings(GroupName = "2-Users")]
     public class UsersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -19,41 +23,51 @@ namespace EXAMPLE.API.Controllers
             _context = context;
         }
 
-        // GET: api/Users
-        // Returns a list of all users.
-        // This call is not required for HelloID, it will be deleted from the swagger.yaml.
-        // <summary>
-        /// Get users
+        // GET: api/users
+        /// <summary>
+        /// Retrieve all users
         /// </summary>
-        [HttpGet(Name = "GetAllUsers")]
-        [ProducesResponseType(typeof(List<User>), 200)]
+        /// <remarks>
+        /// <h2>Implementation notes</h2>
+        /// This endpoint returns all users in the system.  
+        /// It is primarily used to support the import entitlement feature, enable reconciliation,
+        /// and ensure proper governance across connected systems.
+        /// </remarks>
+        /// <response code="200">A list of users was successfully retrieved.</response>
+        /// <response code="401">Authentication failed or was not provided.</response>
+        [HttpGet(Name = "ListUsers")]
+        [ProducesResponseType(typeof(List<User>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.User.ToListAsync();
         }
 
-        // GET: api/Users/:emloyeeId
+        // GET: api/users/{employeeId}
         /// <summary>
-        /// Get user (by EmployeeId)
+        /// Retrieve a user (by employeeId)
         /// </summary>
         /// <remarks>
         /// <h2>Implementation notes</h2>
-        /// Before we add a user account to the target application, we need to validate if that user account exists.
-        /// <br></br>
-        /// Initially, the internal database ID is not known to us. Therefore, we prefer to validate this using the `EmployeeId` since this is unique and available in HelloID.
-        /// <br></br>
-        /// We only need to retrieve the user account using the `employeeId` in our initial create event. For all other events we will use the internal database ID. The `database ID` is the also key we correlate on in our create event.
+        /// Before we add a user account to the target application, we must validate whether that user already exists.
+        /// Since the internal database ID is not known at the time of the initial create event,
+        /// we use the <c>employeeId</c> (which is unique and provided by HelloID) for validation.
+        /// <br/>
+        /// Once the user account is created and correlated, subsequent events will use the internal database ID for lookups.
         /// </remarks>
-        /// <param name="employeeId"></param>
-        /// <response code="200"></response>
-        [HttpGet("ByEmployeeId/{employeeId}", Name = "GetUserByEmployeeId")]
+        /// <param name="employeeId">The employee ID of the user to look up.</param>
+        /// <response code="200">The user was found and returned.</response>
+        /// <response code="404">No user with the specified employee ID was found.</response>
+        /// <response code="401">Authentication failed or was not provided.</response>
+        [HttpGet("employeeid/{employeeid}", Name = "GetUserByEmployeeId")]
         [ActionName(nameof(GetUserByEmployeeId))]
         [ProducesResponseType(typeof(User), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<User>> GetUserByEmployeeId(string employeeId)
+        [ProducesResponseType(401)]
+        public async Task<ActionResult<User>> GetUserByEmployeeId(string employeeid)
         {
             var users = await _context.User.ToListAsync();
-            var user = users.SingleOrDefault(u => u.EmployeeId == employeeId);
+            var user = users.SingleOrDefault(u => u.EmployeeId == employeeid);
             if (user == null)
             {
                 return NotFound();
@@ -62,24 +76,27 @@ namespace EXAMPLE.API.Controllers
             return user;
         }
 
-        // GET: api/Users/:id
+        // GET: api/users/:id
         /// <summary>
-        /// Get user (by id)
+        /// Get user (by Id)
         /// </summary>
         /// <remarks>
         /// <h2>Implementation notes</h2>
         /// Before we update a particular user account, we need to validate if that user account still exists.
-        /// <br></br>
-        /// Validating if the user account exists is an integral part in all our lifecycle events because the user account might be <em>unintentionally</em> deleted. In which case the lifecycle event will fail. 
+        /// <br/>
+        /// Validating if the user account exists is an integral part in all our lifecycle events because the user 
+        /// account might be <em>unintentionally</em> delete, in which case the lifecycle event will fail.
         /// For example: when we want to enable the user account on the day the contract takes effect.
-        /// <br></br>
         /// </remarks>
         /// <param name="id"></param>
-        /// <response code="200"></response>
+        /// <response code="200">The user was found and returned.</response>
+        /// <response code="404">No user with the specified  was found.</response>
+        /// <response code="401">Authentication failed or was not provided.</response>
         [HttpGet("{id:int}", Name = "GetUserById")]
         [ActionName(nameof(GetUserById))]
         [ProducesResponseType(typeof(User), 200)]
         [ProducesResponseType(404)]
+        [ProducesResponseType(401)]
         public async Task<ActionResult<User>> GetUserById(int id)
         {
             var user = await _context.User.FindAsync(id);
@@ -91,35 +108,44 @@ namespace EXAMPLE.API.Controllers
             return user;
         }
 
-        // PATCH: api/Users/:id
+        // PATCH: api/users/{id}
         /// <summary>
-        /// Update user (by id)
+        /// Partially update a user (by Id)
         /// </summary>
         /// <remarks>
         /// <h2>Implementation notes</h2>
-        /// To update a user account we prefer to see an update call in the form of a patch. Which means that we only update the values that have been changed.
-        /// <br></br>
-        /// <em>In this case the patch method is implemented using <a href="https://jsonpatch.com/">JSON Patch</a>. Note that this might not have to be the best solution for your application.</em>
-        /// <br></br>
-        /// Example:
-        ///   
-        ///     PATCH /Users/:id
+        /// This endpoint supports partial updates to a user account using the HTTP PATCH method.
+        /// Only the specified fields in the patch document will be updated.
+        /// <br/>
+        /// <em>This implementation uses <a href="https://jsonpatch.com/">JSON Patch</a>,
+        /// which allows operations like <c>replace</c>, <c>add</c>, and <c>remove</c>.
+        /// Consider whether JSON Patch is the best solution for your application before using it.</em>
+        /// <br/>
+        /// Example request:
+        /// 
+        ///     PATCH /user/{id}
         ///     [  
         ///         {
         ///             "op": "replace",
-        ///             "path": "lastName",
-        ///             "value": "Jane"
+        ///             "path": "active",
+        ///             "value": "false"
         ///         }
         ///     ]
-        ///     
+        /// 
         /// </remarks>
-        /// <param name="id"></param>
-        /// <param name="patchDoc"></param>
-        /// <response code="200"></response>
+        /// <param name="id">The internal database ID of the user to update.</param>
+        /// <param name="patchDoc">The JSON Patch document describing the updates to apply.</param>
+        /// <response code="200">The user was successfully updated and returned.</response>
+        /// <response code="400">The patch document was invalid.</response>
+        /// <response code="404">No user with the specified ID was found.</response>
+        /// <response code="401">Authentication failed or was not provided.</response>
         [HttpPatch("{id}", Name = "PatchUser")]
         [ProducesResponseType(typeof(User), 200)]
-        [ProducesResponseType(404)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(401)]
+        [Consumes("application/json-patch+json")]
+        [SwaggerRequestExample(typeof(JsonPatchDocument<User>), typeof(UserPatchExample))]
         public async Task<IActionResult> PatchUser(int id, [FromBody] JsonPatchDocument<User> patchDoc)
         {
             var entity = await _context.User.FindAsync(id);
@@ -133,32 +159,37 @@ namespace EXAMPLE.API.Controllers
             return Ok(entity);
         }
 
-        // POST: api/Users
+        // POST: api/users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         /// <summary>
-        /// Add user
+        /// Create a new user
         /// </summary>
         /// <remarks>
         /// <h2>Implementation notes</h2>
-        /// Adds a new user account to the target system. The response must contain the internal database ID since this is the key we correlate on and will be used for consecutive requests to the target system. Therefore, the `id` field is enlisted in the user schema.
-        /// <br></br>
-        /// Example:
-        ///     
-        ///     POST /Users
+        /// This endpoint creates a new user account in the target system.
+        /// The response must include the internal database <c>id</c> because this is the key used for correlation
+        /// and will be required for subsequent update, patch, and delete operations.
+        /// <br/>
+        /// Example request:
+        /// 
+        ///     POST /user
         ///     {
         ///        "employeeId": "1000000",
         ///        "firstName": "John",
         ///        "lastName": "Doe",
-        ///        "email: "JDoe@enyoi",
-        ///        "active": "false"
+        ///        "email": "JDoe@enyoi",
+        ///        "active": false
         ///     }
-        ///     
+        /// 
         /// </remarks>
-        /// <param name="User"></param>
-        /// <response code="201"></response>
+        /// <param name="User">The user object to create.</param>
+        /// <response code="201">The user was successfully created.</response>
+        /// <response code="400">Invalid request payload.</response>
+        /// <response code="401">Authentication failed or was not provided.</response>
         [HttpPost(Name = "AddUser")]
         [ProducesResponseType(typeof(User), 201)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         public async Task<ActionResult<User>> PostUser(User User)
         {
             _context.User.Add(User);
@@ -167,79 +198,22 @@ namespace EXAMPLE.API.Controllers
             return CreatedAtAction(nameof(GetUserById), new { Id = User.Id }, User);
         }
 
-        // POST: api/Users/:id/Authorizations
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // DELETE: api/users/:id
         /// <summary>
-        /// Add authorization
-        /// </summary>
-        /// <remarks>
-        /// <h2>Implementation notes</h2>
-        /// We will use this action when an authorization is granted to a user. Since we do not store the result in HelloID, this action does not require a response
-        /// <br></br>
-        /// Example:
-        ///   
-        ///     POST /Users/:id/Authorizations
-        ///     {
-        ///        "roleId": 1,
-        ///        "userId": 1
-        ///     }
-        ///     
-        /// </remarks>
-        /// <param name="auth">The authorization that will be added.</param>
-        /// <response code="201"></response>
-        [HttpPost("Authorizations/Add", Name = "AddAuthorization")]
-        [ProducesResponseType(typeof(Authorization), 201)]
-        [ProducesResponseType(400)]
-        public async Task<ActionResult<Authorization>> PostAuthorization([FromBody] Authorization auth)
-        {
-            _context.Authorization.Add(auth);
-            await _context.SaveChangesAsync();
-
-            return new ObjectResult(auth) { StatusCode = StatusCodes.Status201Created };
-        }
-
-        // DELETE: api/Users/:id
-        /// <summary>
-        /// Delete authorization
-        /// </summary>
-        /// <remarks>
-        /// <h2>Implementation notes</h2>
-        /// We will use this action when an authorization is revoked from a user. This action does not require a response. A [204 No Content] is sufficient.
-        /// </remarks>
-        /// <param name="auth">The authorization that will be removed.</param>
-        /// <response code="204"></response>
-        [HttpDelete("Authorizations/Delete", Name = "DeleteAuthorization")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> DeleteAuthorization(int userId, int roleId)
-        {
-            var user = await _context.User.FindAsync(userId);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var userAuths = await _context.Authorization.Where(a => a.UserId == user.Id).ToListAsync();
-            var authToRemove = userAuths.Where(a => a.RoleId == roleId).SingleOrDefault();
-            _context.Authorization.Remove(authToRemove);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // DELETE: api/Users/:id
-        /// <summary>
-        /// Delete user (by id)
+        /// Delete user (by Id)
         /// </summary>
         /// <remarks>
         /// <h2>Implementation notes</h2>
         /// This action does not require a response. A [204 No Content] is sufficient.
         /// </remarks>
         /// <param name="id"></param>
-        /// <response code="204"></response>
+        /// <response code="204">The user was successfully removed.</response>
+        /// <response code="404">No user with the specified Id was found.</response>
+        /// <response code="401">Authentication required or failed.</response>
         [HttpDelete("{id}", Name = "DeleteUser")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
+        [ProducesResponseType(401)]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.User.FindAsync(id);
@@ -253,5 +227,16 @@ namespace EXAMPLE.API.Controllers
 
             return NoContent();
         }
+    }
+}
+
+public class UserPatchExample : IExamplesProvider<object>
+{
+    public object GetExamples()
+    {
+        return new[]
+        {
+            new { op = "replace", path = "active", value = false }
+        };
     }
 }
