@@ -58,7 +58,7 @@ This repo contains the following:
 
 ## Running the project
 
-1. Download the installer from: https://github.com/JeroenBL/Basic-Example-Target-API/releases
+1. Download the installer from: https://github.com/Tools4everBV/Basic-Example-Target-API/releases
 2. Run `ExampleApiInstaller.exe` to install the service.
 3. Go to: `C:\Program Files (x86)\EXAMPLE-API\appSettings.json` and make sure to specify the URL and portnumber accordingly.
 
