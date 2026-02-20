@@ -192,10 +192,17 @@ namespace EXAMPLE.API.Controllers
         [ProducesResponseType(401)]
         public async Task<ActionResult<User>> PostUser(User User)
         {
-            _context.User.Add(User);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.User.Add(User);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUserById), new { Id = User.Id }, User);
+                return CreatedAtAction(nameof(GetUserById), new { Id = User.Id }, User);
+            }
+            catch (DbUpdateException)
+            {
+                return BadRequest($"EmployeeId '{User.EmployeeId}' already exists.");
+            }
         }
 
         // DELETE: api/users/:id

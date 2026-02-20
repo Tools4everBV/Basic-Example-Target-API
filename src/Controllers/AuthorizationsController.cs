@@ -102,7 +102,15 @@ namespace EXAMPLE.API.Controllers
         [ProducesResponseType(401)]
         public async Task<ActionResult<Authorization>> PostAuthorization([FromBody] Authorization auth)
         {
-            var existingAuth = await _context.Authorization.FirstOrDefaultAsync(a => a.UserId == auth.UserId && a.RoleId == auth.RoleId);
+            var userExists = await _context.User.AnyAsync(u => u.Id == auth.UserId);
+            if (!userExists)
+            {
+                return BadRequest("User does not exist");
+            }
+
+            var existingAuth = await _context.Authorization
+                .FirstOrDefaultAsync(a => a.UserId == auth.UserId && a.RoleId == auth.RoleId);
+
             if (existingAuth != null)
             {
                 return Ok(existingAuth);

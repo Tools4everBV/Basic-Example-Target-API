@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Swashbuckle.AspNetCore.Filters;
+using Microsoft.EntityFrameworkCore;
 
 //var builder = WebApplication.CreateBuilder(args);
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -73,7 +74,7 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         // Basic information about the API and who to contact.
-        Version = "1.0",
+        Version = "2.1.2",
         Title = "Demo Target Application API",
         Description = "This example API specifies the minimal requirements for developing a new API that will be used for user provisioning from HelloID."
     });
@@ -85,9 +86,12 @@ builder.Services.AddSwaggerGen(options =>
 
 
 });
-builder.Services.AddSwaggerExamplesFromAssemblyOf<TokenRequestExample>();
 builder.Services.AddEntityFrameworkSqlite().AddDbContext<ApplicationDbContext>();
-builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("ApplicationSettings"));
+builder.Services.AddSwaggerExamplesFromAssemblyOf<TokenRequestExample>();
+
+builder.Services.Configure<ApplicationSettings>(
+    builder.Configuration.GetSection("ApplicationSettings"));
+
 
 // Setup cors
 builder.Services.AddCors(options =>
@@ -135,6 +139,12 @@ else
     app.UseStaticFiles();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.EnsureCreated();
+    db.Database.ExecuteSqlRaw("PRAGMA foreign_keys = ON;");
+}
 
 app.UseDefaultFiles();
 
