@@ -3,7 +3,7 @@
 The example API specifies the minimal requirements for developing a new API that will be used for user provisioning from HelloID.
 
 > [!NOTE]
-> The swagger interface can be found on: https://app.swaggerhub.com/apis-docs/ConnectorTeam/Basic-EXAMPLE-Target-API
+> The swagger interface can be found on: https://app.swaggerhub.com/apis-docs/ConnectorTeam/Basic-EXAMPLE-Target-API/1.0
 
 ## About
 
@@ -27,7 +27,7 @@ This repo contains the following:
   - [What's in the repo?](#whats-in-the-repo)
   - [Table of contents](#table-of-contents)
   - [Running the project](#running-the-project)
-    - [AppSettings](#appsettings)
+  - [Settings](#settings)
       - [Logging](#logging)
       - [Kestrel](#kestrel)
       - [ApplicationSettings](#applicationsettings)
@@ -58,16 +58,24 @@ This repo contains the following:
 
 ## Running the project
 
-1. Download the installer from: https://github.com/Tools4everBV/Basic-Example-Target-API/releases
-2. Run `ExampleApiInstaller.exe` to install the service.
-3. Go to: `C:\Program Files (x86)\EXAMPLE-API\appSettings.json` and make sure to specify the URL and portnumber accordingly.
+> [!NOTE]
+> This project requires the .NET8 __Desktop__ runtime. Make sure to download and install the .NET8 runtime from: https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-8.0.24-windows-x64-installer
+
+1. Download the application from: https://github.com/Tools4everBV/Basic-Example-Target-API/releases
+2. Open the `EXAMPLE.API.MANAGER.exe` file.
+3. Click `install` to install API.
+
+![alt text](/assets/appManager.png)
 
 > [!NOTE]
 > By default, the project runs on: http://localhost:5006
 
-### AppSettings
+## Settings
 
-Application settings can be customized in the `C:\Program Files (x86)\EXAMPLE-API\appSettings.json\appsettings.json` file.
+If you wish to make changes to the settings, you can do so by opening the `Settings` window.
+
+
+![alt text](/assets/appManager.png)
 
 #### Logging
 

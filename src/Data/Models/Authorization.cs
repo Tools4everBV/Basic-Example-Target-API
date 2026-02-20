@@ -18,7 +18,6 @@ namespace EXAMPLE.API.Data.Models
         /// </br>
         /// </summary>
         [Key]
-        [JsonIgnore]
         public int Id { get; internal set; }
 
         /// <summary>
@@ -34,5 +33,8 @@ namespace EXAMPLE.API.Data.Models
         /// <example>1</example>
         [Required(ErrorMessage = "UserId is required")]
         public int UserId { get; set; }
+
+        [JsonIgnore]
+        public User? User { get; set; }
     }
 }

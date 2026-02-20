@@ -25,5 +25,18 @@ namespace EXAMPLE.API.Data
             var conn = $@"Data Source={baseDir}//EXAMPLE.db";
             optionsBuilder.UseSqlite(conn);
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Authorization>()
+                .HasOne(a => a.User)
+                .WithMany(u => u.Authorizations)
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.EmployeeId)
+                .IsUnique();
+        }
     }
 }

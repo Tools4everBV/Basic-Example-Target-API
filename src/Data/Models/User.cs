@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace EXAMPLE.API.Data.Models
 {
@@ -12,6 +14,7 @@ namespace EXAMPLE.API.Data.Models
     /// This schema contains the bare minimum we need in order to build a solid connector.
     /// </br>
     /// </summary>
+    [Index(nameof(EmployeeId), IsUnique = true)]
     public class User
     {
         /// <summary>
@@ -61,5 +64,8 @@ namespace EXAMPLE.API.Data.Models
         /// <example>False</example>
         [Required(ErrorMessage = "Active is required")]
         public bool? Active { get; set; }
+
+        [JsonIgnore]
+        public ICollection<Authorization>? Authorizations { get; set; } = new List<Authorization>();
     }
 }

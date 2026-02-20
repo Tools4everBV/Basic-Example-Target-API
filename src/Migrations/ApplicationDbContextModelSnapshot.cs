@@ -31,6 +31,8 @@ namespace EXAMPLE.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Authorization");
                 });
 
@@ -77,7 +79,26 @@ namespace EXAMPLE.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EmployeeId")
+                        .IsUnique();
+
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("EXAMPLE.API.Data.Models.Authorization", b =>
+                {
+                    b.HasOne("EXAMPLE.API.Data.Models.User", "User")
+                        .WithMany("Authorizations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("EXAMPLE.API.Data.Models.User", b =>
+                {
+                    b.Navigation("Authorizations");
                 });
 #pragma warning restore 612, 618
         }
